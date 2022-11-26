@@ -29,7 +29,7 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
 
     public void dropUsersTable() {
         try (Statement statement = conn.createStatement()) {
-            statement.executeUpdate("DROP TABLE usersTable;");
+            statement.executeUpdate("DROP TABLE IF EXISTS usersTable;");
         } catch (SQLException ignored) {
             System.out.println("dropUserTable");
         }
@@ -41,8 +41,7 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
             statement.executeUpdate("INSERT INTO usersTable (name, lastName, age) VALUES ('" + name + "', '" + lastName + "', " + age + ");");
             System.out.println("User с именем – " + name +" добавлен в базу данных" );
         } catch (SQLException e) {
-            e.printStackTrace();
-            //System.out.println(" Save user method ERROR");
+            System.out.println(" Save user method ERROR");
         }
     }
 
