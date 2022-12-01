@@ -8,9 +8,10 @@ public class Util {
     public static final String USER_NAME = "root";
     public static final String PASSWORD = "root";
 
-    public Connection getConnection() {
+    public static Connection getConnection() {
         try {
             Connection connection = DriverManager.getConnection(URL, USER_NAME, PASSWORD);
+            connection.setAutoCommit(false);
             System.out.println("Connection OK");
             return connection;
          } catch (SQLException e) {
