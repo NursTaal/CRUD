@@ -6,6 +6,7 @@ import jm.task.core.jdbc.service.UserServiceImpl;
 import java.sql.SQLException;
 
 import static jm.task.core.jdbc.util.Util.getConnection;
+import static jm.task.core.jdbc.util.Util.getSessionFactory;
 
 public class Main {
 
@@ -27,7 +28,7 @@ public class Main {
         userService.cleanUsersTable();
         userService.dropUsersTable();
 
-        getConnection().close();
+        getSessionFactory().close();
     }
 }
 /*
