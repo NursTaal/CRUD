@@ -4,6 +4,7 @@ import jm.task.core.jdbc.model.User;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import static jm.task.core.jdbc.util.Util.getSessionFactory;
 
@@ -24,9 +25,9 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        Session session = getSessionFactory().getCurrentSession();
-        try {
-            session.beginTransaction();
+        Transaction transaction = null;
+        try (Session session = getSessionFactory().getCurrentSession()){
+            transaction = session.beginTransaction();
             session.createSQLQuery("CREATE TABLE IF NOT EXISTS usersTable " +
                     "(id INT PRIMARY KEY AUTO_INCREMENT,name VARCHAR(30), lastName VARCHAR(35), age INT);")
                     .addEntity(User.class).executeUpdate();
@@ -35,21 +36,17 @@ public class UserDaoHibernateImpl implements UserDao {
             System.out.println("UserTable create successful");
         } catch (HibernateException e) {
             System.out.println("Create UserTable ERROR");
-            try {
-                session.getTransaction().rollback();
-            } catch (HibernateException e1) {
-                e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
             }
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public void dropUsersTable() {
-        Session session = getSessionFactory().getCurrentSession();
-        try {
-            session.beginTransaction();
+        Transaction transaction = null;
+        try (Session session = getSessionFactory().getCurrentSession()) {
+            transaction = session.beginTransaction();
             session.createSQLQuery("DROP TABLE IF EXISTS usersTable;")
                     .addEntity(User.class).executeUpdate();
 
@@ -57,44 +54,37 @@ public class UserDaoHibernateImpl implements UserDao {
             System.out.println("Drop userTable successful");
         } catch (HibernateException e) {
             System.out.println("Drop UserTable ERROR");
-            try {
-                session.getTransaction().rollback();
-            } catch (HibernateException e1) {
-                e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
             }
-        } finally {
-        session.close();
-    }
-
+        }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        Session session = getSessionFactory().getCurrentSession();
-        try {
+        Transaction transaction = null;
+        try (Session session = getSessionFactory().getCurrentSession()){
             User user = new User(name, lastName, age);
-            session.beginTransaction();
+
+            transaction = session.beginTransaction();
             session.save(user);
 
             session.getTransaction().commit();
+            System.out.println("User с именем -" + name + " добавлен в базу данных");
             System.out.println("saveUser successful");
         } catch (HibernateException e) {
             System.out.println("saveUser ERROR");
-            try {
-                session.getTransaction().rollback();
-            } catch (HibernateException e1) {
-                e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
             }
-        } finally {
-            session.close();
         }
     }
 
     @Override
     public void removeUserById(long id) {
-        Session session = getSessionFactory().getCurrentSession();
-        try {
-            session.beginTransaction();
+        Transaction transaction = null;
+        try (Session session = getSessionFactory().getCurrentSession()){
+            transaction = session.beginTransaction();
             session.createQuery("delete User " +
                     "where id = " + id).executeUpdate();
 
@@ -102,45 +92,31 @@ public class UserDaoHibernateImpl implements UserDao {
             System.out.println("removeUserById successful");
         } catch (HibernateException e) {
             System.out.println("removeUserById ERROR");
-            try {
-                session.getTransaction().rollback();
-            } catch (HibernateException e1) {
-                e.printStackTrace();
+            if (transaction != null){
+                transaction.rollback();
             }
-        } finally {
-            session.close();
         }
-
     }
 
     @Override
     public List<User> getAllUsers() {
-        List userList = new ArrayList<>();
-        Session session = getSessionFactory().getCurrentSession();
-        try {
+        List<User> userList = new ArrayList<>();
+        try (Session session = getSessionFactory().getCurrentSession()) {
             session.beginTransaction();
             userList = session.createQuery("from User").getResultList();
 
-            session.getTransaction().commit();
             System.out.println("getAllUsers successful");
         } catch (HibernateException e) {
             System.out.println("getAllUsers ERROR");
-            try {
-                session.getTransaction().rollback();
-            } catch (HibernateException e1) {
-                e.printStackTrace();
-            }
-        } finally {
-            session.close();
         }
         return userList;
     }
 
     @Override
     public void cleanUsersTable() {
-        Session session = getSessionFactory().getCurrentSession();
-        try {
-            session.beginTransaction();
+        Transaction transaction = null;
+        try (Session session = getSessionFactory().getCurrentSession()) {
+            transaction = session.beginTransaction();
             session.createQuery("DELETE FROM User ")
                     .executeUpdate();
 
@@ -148,13 +124,9 @@ public class UserDaoHibernateImpl implements UserDao {
             System.out.println("CleanUsersTable successful");
         } catch (HibernateException e) {
             System.out.println("CleanUsersTable ERROR");
-            try {
-                session.getTransaction().rollback();
-            } catch (HibernateException e1) {
-                e.printStackTrace();
+            if (transaction != null){
+                transaction.rollback();
             }
-        } finally {
-            session.close();
         }
     }
 }
